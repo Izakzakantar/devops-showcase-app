@@ -1,7 +1,5 @@
 pipeline{
-    agent {
-        docker {image 'node:22'} //we've used a temp Node 22 container
-    }
+    agent any
     stages{
         stage('Checkout'){
             steps {
