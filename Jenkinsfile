@@ -3,7 +3,12 @@ pipeline{
     stages{
         stage('Checkout'){
             steps {
-                echo 'Code checked out successfully'
+                echo 'Code checked out successfully '
+            }
+        }
+        stage('Trigger'){
+            steps{
+                echo "Trigger test"
             }
         }
         stage('Install'){
