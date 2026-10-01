@@ -36,7 +36,7 @@ pipeline{
                  docker
                     {
                         image 'docker:24'
-                        args '-v /var/run/docker.sock:/var/run/docker.sock'
+                        args '-v /var/run/docker.sock:/var/run/docker.sock --group-add <GID>'
                     }
                 
             }
