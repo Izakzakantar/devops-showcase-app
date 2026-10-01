@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Install'){
             agent{
-                {docker {image 'node:22'}}
+                { docker {image 'node:22'}}
             }
             steps {
                 sh 'npm ci'
