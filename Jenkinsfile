@@ -42,13 +42,16 @@ pipeline{
                 AWS_ACCOUNT_ID='298599751110'
                 AWS_REGION='us-east-1'
             }
-            withCredentials([usernamePassword(
+            steps{
+                withCredentials([usernamePassword(
                 credentialsId: 'github-api-token',
                 usernameVariable:'IGNORE_USER',
                 passwordVariable:'IGNORE_PASS'
             )]){
                 echo 'placeholder ,real credentials stage below'
             }
+            }
+            
         }
         stage("build image"){
             agent {
