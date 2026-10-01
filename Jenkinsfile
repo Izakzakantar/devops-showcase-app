@@ -42,11 +42,25 @@ pipeline{
             }
             environment{
                 DOCKER_CONFIG='/tmp/.docker'
+                AWS_ACCOUNT_ID= '298599751110'
+                AWS_REGION='us-east-1'
             }
             steps{
-                
-                sh 'mkdir -p $DOCKER_CONFIG'
-                sh 'docker build -t devops-showcase-app:$BUILD_NUMBER .'
+                withCredentials([usernamePassword( 
+                    credentialsId :'aws-user-secret',
+                    usernameVariable:'AWS_ACCESS_KEY_ID',
+                    passwordVariable:'AWS_SECRET_ACCESS_KEY'
+                )]){
+                    sh 'mkdir -p $DOCKER_CONFIG'
+                    sh 'apk add --no-cache aws-cli'
+                    sh '''
+                        aws ecr get-login-password --region $AWS_REGION | \
+                        docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                        docker tag devops-showcase-app:$BUILD_NUMBER $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
+                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
+                       '''
+                }
+               
             }
         }
     }
