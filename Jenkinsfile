@@ -1,91 +1,68 @@
-pipeline{
+pipeline {
     agent none
-    stages{
-        stage('Checkout'){
+    stages {
+        stage('Checkout') {
             agent any
             steps {
-                echo 'Code checked out successfully '
+                echo 'Code checked out successfully'
             }
         }
-        stage('Trigger'){
+        stage('Trigger') {
             agent any
-            steps{
+            steps {
                 echo "Trigger test"
             }
         }
-        stage('Install'){
-            agent{
-                 docker {image 'node:22'}
+        stage('Install') {
+            agent {
+                docker { image 'node:22' }
             }
             steps {
                 sh 'npm ci'
             }
         }
-        stage('Test'){
+        stage('Test') {
             agent {
-                 docker {
+                docker {
                     image 'node:22'
                 }
             }
-            steps{
+            steps {
                 sh 'npm test'
             }
         }
-        stage('Login to ECR') {
+        stage('build image') {
             agent {
-                docker{
-                    image 'amazon/aws-cli:2.17.62'
-                    args '--entrypoint=""'
+                docker {
+                    image 'docker:24'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock --group-add 0 -u root'
                 }
             }
-            environment{
-                AWS_ACCOUNT_ID='298599751110'
-                AWS_REGION='us-east-1'
+            environment {
+                DOCKER_CONFIG = '/tmp/.docker'
+                AWS_ACCOUNT_ID = '298599751110'
+                AWS_REGION = 'us-east-1'
             }
-            steps{
+            steps {
                 withCredentials([usernamePassword(
-                credentialsId: 'github-api-token',
-                usernameVariable:'IGNORE_USER',
-                passwordVariable:'IGNORE_PASS'
-            )]){
-                echo 'placeholder ,real credentials stage below'
-            }
-            }
-            
-        }
-        stage("build image"){
-            agent {
-                 docker
-                    {
-                        image 'docker:24'
-                        args '-v /var/run/docker.sock:/var/run/docker.sock --group-add 0 -u root'
-                    }
-                
-            }
-            environment{
-                DOCKER_CONFIG='/tmp/.docker'
-                AWS_ACCOUNT_ID= '298599751110'
-                AWS_REGION='us-east-1'
-            }
-            steps{
-                withCredentials([usernamePassword( 
-                    credentialsId :'aws-user-secret',
-                    usernameVariable:'AWS_ACCESS_KEY_ID',
-                    passwordVariable:'AWS_SECRET_ACCESS_KEY'
-                )]){
+                    credentialsId: 'aws-user-secret',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
                     sh 'mkdir -p $DOCKER_CONFIG'
-                    sh 'apk add --no-cache aws-cli'
+                    sh 'docker build -t devops-showcase-app:$BUILD_NUMBER .'
                     sh '''
-                        apk add --no-cache curl python3 py3-pip
-                        pip install --break-system-packages awscli
+                        apk add --no-cache curl unzip
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+                        unzip -q awscliv2.zip
+                        ./aws/install
                         aws ecr get-login-password --region $AWS_REGION > /tmp/ecrpass.txt
                         cat /tmp/ecrpass.txt | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                         docker tag devops-showcase-app:$BUILD_NUMBER $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
                         docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
                         rm -f /tmp/ecrpass.txt
-                       '''
+                    '''
                 }
-               
             }
         }
     }
