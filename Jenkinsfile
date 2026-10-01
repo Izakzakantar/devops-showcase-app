@@ -40,7 +40,12 @@ pipeline{
                     }
                 
             }
+            environment{
+                DOCKER_CONFIG='/tmp/.docker'
+            }
             steps{
+                
+                sh 'mkdir -p $DOCKER_CONFIG'
                 sh 'docker build -t devops-showcase-app:$BUILD_NUMBER .'
             }
         }
