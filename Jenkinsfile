@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Install'){
             agent{
-                { docker {image 'node:22'}}
+                 docker {image 'node:22'}
             }
             steps {
                 sh 'npm ci'
@@ -23,9 +23,9 @@ pipeline{
         }
         stage('Test'){
             agent {
-                { docker {
+                 docker {
                     image 'node:22'
-                }}
+                }
             }
             steps{
                 sh 'npm test'
@@ -33,12 +33,12 @@ pipeline{
         }
         stage("build image"){
             agent {
-                {docker
+                 docker
                     {
                         image 'docker:24'
                         args '-v /var/run/docker.sock:/var/run/docker.sock'
                     }
-                }
+                
             }
             steps{
                 sh 'docker build -t devops-showcase-app:$BUILD_NUMBER .'
