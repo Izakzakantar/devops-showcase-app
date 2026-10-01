@@ -31,14 +31,14 @@ pipeline{
                 sh 'npm test'
             }
         }
-        stage('Login to ECR'){
+        stage('Login to ECR') {
             agent {
                 docker{
                     image 'amazon/aws-cli:2.17.62'
                     args '--entrypoint=""'
                 }
             }
-            environment:{
+            environment{
                 AWS_ACCOUNT_ID='298599751110'
                 AWS_REGION='us-east-1'
             }
