@@ -31,7 +31,7 @@ pipeline{
                 sh 'npm test'
             }
         }
-        stage ('Login to ECR'){
+        stage('Login to ECR'){
             agent {
                 docker{
                     image 'amazon/aws-cli:2.17.62'
