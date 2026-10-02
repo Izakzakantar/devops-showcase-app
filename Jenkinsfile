@@ -36,7 +36,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    apk add --no-cache aws-cli
+                    apk add --no-cache aws-cli-bin
                     docker build -t devops-showcase-app:$BUILD_NUMBER .
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                     docker tag devops-showcase-app:$BUILD_NUMBER $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
