@@ -38,8 +38,8 @@ pipeline {
                 sh '''
                     apk add --no-cache curl unzip gcompat
                     curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
-                    unzip -q awscliv2.zip
-                    ./aws/install
+                    unzip -q -o awscliv2.zip
+                    ./aws/install --update
                     docker build -t devops-showcase-app:$BUILD_NUMBER .
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                     docker tag devops-showcase-app:$BUILD_NUMBER $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
