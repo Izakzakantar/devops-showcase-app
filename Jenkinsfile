@@ -36,7 +36,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    apk add --no-cache curl unzip
+                    apk add --no-cache curl unzip gcompat
                     curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
                     unzip -q awscliv2.zip
                     ./aws/install
