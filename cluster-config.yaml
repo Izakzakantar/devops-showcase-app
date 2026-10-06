@@ -1,0 +1,19 @@
+# cluster-config.yaml
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: devops-showcase-cluster
+  region: us-east-1
+  version: "1.31"
+
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+    iam:
+      withAddonPolicies:
+        imageBuilder: true   # grants ECR push+pull permissions
+                              # automatically, no manual attach needed
