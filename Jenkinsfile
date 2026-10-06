@@ -60,7 +60,7 @@ pipeline {
                     usernameVariable: 'AWS_ACCESS_KEY_ID',
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
-                    withKubeConfig(credentialsId: 'eks-kubeconfig') {
+                    withKubeConfig(credentialsId: 'jenkins-eks-config-file') {
                         sh '''
                             kubectl create secret docker-registry ecr-secret \
                               --docker-server=298599751110.dkr.ecr.us-east-1.amazonaws.com \
