@@ -9,4 +9,4 @@ app.get('/', (req, res) =>
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 app.get('/ready', (req, res) => res.status(200).json({ status: 'ready' }));
 
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+app.listen(PORT, () => console.log(`Listening on ${PORT}`));//d
