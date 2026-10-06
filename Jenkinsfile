@@ -22,7 +22,7 @@ pipeline {
         stage('Build and Push to ECR') {
             agent {
                 docker {
-                    image 'ishakantar/jekins-ecr-agent:v2'
+                    image 'ishakantar/jekins-ecr-agent:v3'
                     args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
                 }
             }
@@ -37,7 +37,9 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     sh '''
-                        docker build -t devops-showcase-app:$BUILD_NUMBER .
+                        docker run --privileged --rm tonistiigi/binfmt --install all
+                        docker buildx create --use
+                        docker buildx build --platform linux/amd64 -t devops-showcase-app:$BUILD_NUMBER --load .
                         aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                         docker tag devops-showcase-app:$BUILD_NUMBER $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
                         docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-showcase-app:$BUILD_NUMBER
@@ -48,7 +50,7 @@ pipeline {
         stage('Deploy with Helm') {
             agent {
                 docker {
-                    image 'ishakantar/jekins-ecr-agent:v2'
+                    image 'ishakantar/jekins-ecr-agent:v3'
                     args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
                 }
             }
@@ -58,7 +60,7 @@ pipeline {
                     usernameVariable: 'AWS_ACCESS_KEY_ID',
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
-                    withKubeConfig(credentialsId: 'jenkins-eks-config-file') {
+                    withKubeConfig(credentialsId: 'eks-kubeconfig') {
                         sh '''
                             kubectl create secret docker-registry ecr-secret \
                               --docker-server=298599751110.dkr.ecr.us-east-1.amazonaws.com \
